@@ -64,7 +64,7 @@ public class Optimistic
 					else if ( act.getActivity().equals("terminate"))
 					{
 						current.terminate(currentcycle);
-						//System.out.println(x);
+						System.out.println("terminating curr cycle " + currentcycle);
 						current.results[0] = currentcycle + "";
 						current.results[1] = current.waiting + "";
 						current.results[2] = (int) (((double) current.waiting / (double) (currentcycle) ) * 100) + "%";
@@ -78,6 +78,7 @@ public class Optimistic
 						if (current.isDone() && current.getComputeTime() == 0)
 						{
 							current.terminate(currentcycle);
+							System.out.println("terminating computing curr cycle " + currentcycle);
 							current.results[0] = currentcycle + "";
 							current.results[1] = current.waiting + "";
 							current.results[2] = (int) (((double) current.waiting / (double) currentcycle ) * 100) + "%";
@@ -91,11 +92,12 @@ public class Optimistic
 					current.compute -=1;
 					if (current.getComputeTime() == 0 && current.isDone())
 					{
-						current.terminate(currentcycle);
-						
+						//current.terminate(currentcycle);
+						current.finish = currentcycle;
+						current.terminated = true;
 						current.results[0] = currentcycle + "";
 						current.results[1] = current.waiting + "";
-						current.results[2] = (int) (((double) current.waiting / (double) currentcycle ) * 100) + "%";
+						current.results[2] = (int) (((double) current.waiting / (double) current.finish ) * 100) + "%";
 					}
 				}
 		
