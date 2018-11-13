@@ -34,14 +34,14 @@ public class Optimistic
 			active.add(t);
 		}
 		
-		System.out.println(active.size());
+		//System.out.println(active.size());
 		while (active.size() > 0)
 		{
 			for (int i = 0; i < active.size(); i++)
 			{
 				Task current = active.get(i);
 				int index = current.getIndex(); 
-				System.out.println(index);
+				//System.out.println(index);
 				Action act = current.getList().get(index);
 				if (current.getComputeTime() == 0)
 				{
@@ -64,15 +64,17 @@ public class Optimistic
 					else if ( act.getActivity().equals("terminate"))
 					{
 						current.terminate(currentcycle);
+						//System.out.println(x);
 						current.results[0] = currentcycle + "";
 						current.results[1] = current.waiting + "";
-						current.results[2] = (int) (((double) current.waiting / (double) currentcycle ) * 100) + "%";
-					}
+						current.results[2] = (int) (((double) current.waiting / (double) (currentcycle) ) * 100) + "%";
+					} 
 					else if ( act.getActivity().equals("compute"))
 					{
 						current.setComputeTime(act.getB());
-						current.incIndex();
-						act = current.getList().get(index);
+						current.currentindex += 1;
+						//current.incIndex();
+						//act = current.getList().get(index);
 						if (current.isDone() && current.getComputeTime() == 0)
 						{
 							current.terminate(currentcycle);
@@ -83,11 +85,14 @@ public class Optimistic
 					}
 				}
 				else {
+					//the task is currently computing
 					//System.out.println("hola");
-					current.setComputeTime(current.getComputeTime()-1);
+					//current.setComputeTime(current.getComputeTime()-1);
+					current.compute -=1;
 					if (current.getComputeTime() == 0 && current.isDone())
 					{
 						current.terminate(currentcycle);
+						
 						current.results[0] = currentcycle + "";
 						current.results[1] = current.waiting + "";
 						current.results[2] = (int) (((double) current.waiting / (double) currentcycle ) * 100) + "%";
@@ -121,6 +126,7 @@ public class Optimistic
 			ok.clear();
 			System.out.println(active.size());
 			currentcycle++;
+			System.out.println("current cycle " + currentcycle);
 			//System.out.println("reached end");
 		}		
 	}
@@ -168,7 +174,9 @@ public class Optimistic
 		
 		if (current.getComputeTime() > 0)
 		{
-			current.setComputeTime(current.getComputeTime()-1);
+			current.compute-=1;
+			ok.add(current);
+			//current.setComputeTime(current.getComputeTime()-1);
 		}
 		else {
 			if (available >= amtrequested)
@@ -194,9 +202,10 @@ public class Optimistic
 		int amtreleased = act.getC();
 		int currentown = current.resourcesOwn[resource];
 		
-		if (current.getComputeTime() > 0)
+		if(current.getComputeTime() > 0)
 		{
-			current.setComputeTime(current.getComputeTime()-1);
+			current.compute-=1;
+			//current.setComputeTime(current.getComputeTime()-1);
 			ok.add(current);
 		}
 		else {
@@ -206,6 +215,7 @@ public class Optimistic
 				current.release(resource, amtreleased);
 				current.currentindex += 1;
 				ok.add(current);
+				
 			}
 			else {
 				current.waiting++;
