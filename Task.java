@@ -15,6 +15,8 @@ public class Task
 	int finish; 
 	int waiting;
 	
+	String[] results = new String[3];
+	
 	public Task (int id, int numResources)
 	{
 		this.id = id;
@@ -72,7 +74,7 @@ public class Task
 	
 	public void incIndex()
 	{
-		this.currentindex++;
+		this.currentindex = this.currentindex + 1;
 	}
 	
 	public int getIndex()
@@ -104,6 +106,14 @@ public class Task
 		for (Action a : this.getList())
 		{
 			System.out.println(a.toString());
+		}
+	}
+	
+	public void printResults()
+	{
+		for (int i = 0; i < results.length; i++)
+		{
+			System.out.print(results[i] + "   ");
 		}
 	}
 	

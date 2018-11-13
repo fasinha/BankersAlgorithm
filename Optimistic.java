@@ -10,7 +10,8 @@ public class Optimistic
 	ArrayList<Task> blocked; 
 	ArrayList<Task> ok; 
 	
-	int[] justReleased = new int[numresources+1];
+	int[] justReleased;
+	
 	
 	public Optimistic(int numoftasks, int numresources, int[] resourcelist)
 	{
@@ -20,10 +21,12 @@ public class Optimistic
 		active = new ArrayList<Task>();
 		blocked = new ArrayList<Task>();
 		ok = new ArrayList<Task>();
+		justReleased = new int[numresources+1];
 	}
 	
 	public void run(ArrayList<Task> tasklist)
 	{
+		//System.out.println(justReleased.length);
 		int currentcycle = 0;
 		
 		for (Task t : tasklist)
@@ -31,21 +34,27 @@ public class Optimistic
 			active.add(t);
 		}
 		
-		while (true)
+		System.out.println(active.size());
+		while (active.size() > 0)
 		{
 			for (int i = 0; i < active.size(); i++)
 			{
 				Task current = active.get(i);
-				int index = current.getIndex();
+				int index = current.getIndex(); 
+				System.out.println(index);
 				Action act = current.getList().get(index);
 				if (current.getComputeTime() == 0)
 				{
 					if ( act.getActivity().equals("initiate"))
 					{
-						current.incIndex();
+						System.out.println("initiated task " + current.getID());
+						
+						current.currentindex +=1; 
+						ok.add(current);
 					}
 					else if ( act.getActivity().equals("request"))
 					{
+						System.out.println("request task " + current.getID());
 						request(current, act);
 					}
 					else if ( act.getActivity().equals("release"))
@@ -55,6 +64,9 @@ public class Optimistic
 					else if ( act.getActivity().equals("terminate"))
 					{
 						current.terminate(currentcycle);
+						current.results[0] = currentcycle + "";
+						current.results[1] = current.waiting + "";
+						current.results[2] = (int) (((double) current.waiting / (double) currentcycle ) * 100) + "%";
 					}
 					else if ( act.getActivity().equals("compute"))
 					{
@@ -64,28 +76,42 @@ public class Optimistic
 						if (current.isDone() && current.getComputeTime() == 0)
 						{
 							current.terminate(currentcycle);
+							current.results[0] = currentcycle + "";
+							current.results[1] = current.waiting + "";
+							current.results[2] = (int) (((double) current.waiting / (double) currentcycle ) * 100) + "%";
 						}
 					}
 				}
 				else {
+					//System.out.println("hola");
 					current.setComputeTime(current.getComputeTime()-1);
 					if (current.getComputeTime() == 0 && current.isDone())
 					{
 						current.terminate(currentcycle);
+						current.results[0] = currentcycle + "";
+						current.results[1] = current.waiting + "";
+						current.results[2] = (int) (((double) current.waiting / (double) currentcycle ) * 100) + "%";
 					}
 				}
 		
 			}
 			
+			//System.out.println("reached ");
 			if (blocked.size() > 0 && ok.size() == 0)
 			{
+				System.out.println("deadlock reached here");
 				deadlockmethod(currentcycle);
+				//System.exit(0);
+				//break;
 			}
 			
+			//System.out.println(resourcelist.length);
+			//System.out.println(justReleased.length);
 			for (int i = 1; i < resourcelist.length; i++)
 			{
 				resourcelist[i] += justReleased[i];
 				justReleased[i] = 0;
+				
 			}
 			
 			active.clear();
@@ -93,8 +119,9 @@ public class Optimistic
 			active.addAll(ok);
 			blocked.clear();
 			ok.clear();
-			
+			System.out.println(active.size());
 			currentcycle++;
+			//System.out.println("reached end");
 		}		
 	}
 
@@ -117,10 +144,11 @@ public class Optimistic
 			
 			Task toabort = blocked.get(abort_index);
 			toabort.abort(currentcycle);
-			for (int k = 0; k < numresources; k++)
+			for (int k = 1; k < numresources+1; k++)
 			{
-				justReleased[k] += blocked.get(k).resourcesOwn[k];
+				justReleased[k] += toabort.resourcesOwn[k];
 			}
+			System.out.println(toabort.getID() + " ABORTED");
 			blocked.remove(toabort);
 			break;
 		}
@@ -128,9 +156,15 @@ public class Optimistic
 
 	public void request(Task current, Action act) 
 	{
-		int resource = act.getA();
-		int amtrequested = act.getB();
+		int resource = act.getB();
+		//System.out.println("resource " + resource);
+		//System.out.println(resourcelist.length);
+		int amtrequested = act.getC();
+		//System.out.println(Arrays.toString(resourcelist));
+		//System.exit(0);
 		int available = resourcelist[resource];
+		System.out.println("amt requested by task " + current.getID() + " " + amtrequested);
+		//System.out.println("available = " + available);
 		
 		if (current.getComputeTime() > 0)
 		{
@@ -139,22 +173,25 @@ public class Optimistic
 		else {
 			if (available >= amtrequested)
 			{
+				
 				resourcelist[resource] -= amtrequested;
 				current.receive(resource, amtrequested);
-				current.incIndex();
+				current.currentindex += 1;
 				ok.add(current);
+				System.out.println("Task " + current.getID() + " request granted");
 			}
 			else {
 				current.waiting++;
 				blocked.add(current);
+				System.out.println("task " + current.getID() + " request cannot be granted");
 			}
 		}
 	}
 	
 	public void release(Task current, Action act)
 	{
-		int resource = act.getA();
-		int amtreleased = act.getB();
+		int resource = act.getB();
+		int amtreleased = act.getC();
 		int currentown = current.resourcesOwn[resource];
 		
 		if (current.getComputeTime() > 0)
@@ -167,7 +204,7 @@ public class Optimistic
 			{
 				justReleased[resource] += amtreleased;
 				current.release(resource, amtreleased);
-				current.incIndex();
+				current.currentindex += 1;
 				ok.add(current);
 			}
 			else {

@@ -12,6 +12,7 @@ public class Main {
 		String[] split = first.split(" ");
 		int numtasks = Integer.parseInt(split[0]);
 		int numresources = Integer.parseInt(split[1]);
+		
 		int[] resourcelist = new int[numresources+1];
 		
 		ArrayList<Task> tasklist = new ArrayList<Task>();
@@ -23,11 +24,13 @@ public class Main {
 			//System.out.println( "task id" + tasklist.get(i).getID() );
 		}
 		//System.out.println(tasklist.size());
+		resourcelist[0] = 0;
 		for (int i = 1; i < resourcelist.length; i++)
 		{
 			resourcelist[i] = Integer.parseInt(split[i+1]);
+			
 		}
-		
+		//System.out.println("this resource list is length " + resourcelist.length);
 		while (scan.hasNext())
 		{
 			ArrayList<Action> instructionlist = new ArrayList<Action>();
@@ -49,5 +52,19 @@ public class Main {
 		
 		Optimistic o = new Optimistic(numtasks, numresources, resourcelist);
 		o.run(tasklist);
+		System.out.println("\tFIFO");
+		for (Task t : tasklist)
+		{
+			System.out.print("Task " + t.getID() + "\t");
+			if (t.aborted == true)
+			{
+				System.out.print("aborted");
+				System.out.println();
+			}
+			else {
+				t.printResults();
+				System.out.println();
+			}
+		}
 	}
 }
