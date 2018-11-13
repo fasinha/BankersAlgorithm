@@ -33,4 +33,10 @@ public class Action
 	{
 		return this.c;
 	}
+	
+	public String toString()
+	{
+		String str = activity + " " + a + " " + b + " " + c;
+		return str;
+	}
 }

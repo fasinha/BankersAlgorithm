@@ -1,6 +1,7 @@
 import java.util.*;
-public class Optimistic {
 
+public class Optimistic 
+{
 	int numoftasks;
 	int numresources;
 	int[] resourcelist;
@@ -9,13 +10,16 @@ public class Optimistic {
 	ArrayList<Task> blocked; 
 	ArrayList<Task> ok; 
 	
-	int[] justReleased = new int[numresources];
+	int[] justReleased = new int[numresources+1];
 	
 	public Optimistic(int numoftasks, int numresources, int[] resourcelist)
 	{
 		this.numoftasks = numoftasks;
 		this.numresources = numresources;
 		this.resourcelist = resourcelist;
+		active = new ArrayList<Task>();
+		blocked = new ArrayList<Task>();
+		ok = new ArrayList<Task>();
 	}
 	
 	public void run(ArrayList<Task> tasklist)
@@ -34,33 +38,43 @@ public class Optimistic {
 				Task current = active.get(i);
 				int index = current.getIndex();
 				Action act = current.getList().get(index);
-				if ( act.getActivity().equals("initiate"))
+				if (current.getComputeTime() == 0)
 				{
-					current.incIndex();
+					if ( act.getActivity().equals("initiate"))
+					{
+						current.incIndex();
+					}
+					else if ( act.getActivity().equals("request"))
+					{
+						request(current, act);
+					}
+					else if ( act.getActivity().equals("release"))
+					{
+						release(current, act);
+					}
+					else if ( act.getActivity().equals("terminate"))
+					{
+						current.terminate(currentcycle);
+					}
+					else if ( act.getActivity().equals("compute"))
+					{
+						current.setComputeTime(act.getB());
+						current.incIndex();
+						act = current.getList().get(index);
+						if (current.isDone() && current.getComputeTime() == 0)
+						{
+							current.terminate(currentcycle);
+						}
+					}
 				}
-				else if ( act.getActivity().equals("request"))
-				{
-					request(current, act);
-				}
-				else if ( act.getActivity().equals("release"))
-				{
-					release(current, act);
-				}
-				else if ( act.getActivity().equals("terminate"))
-				{
-					
-					current.terminate(currentcycle);
-				}
-				else if ( act.getActivity().equals("compute"))
-				{
-					current.setComputeTime(act.getB());
-					current.incIndex();
-					act = current.getList().get(index);
-					if (current.isDone() && current.getComputeTime() == 0)
+				else {
+					current.setComputeTime(current.getComputeTime()-1);
+					if (current.getComputeTime() == 0 && current.isDone())
 					{
 						current.terminate(currentcycle);
 					}
 				}
+		
 			}
 			
 			if (blocked.size() > 0 && ok.size() == 0)
@@ -68,7 +82,7 @@ public class Optimistic {
 				deadlockmethod(currentcycle);
 			}
 			
-			for (int i = 0; i < numresources; i++)
+			for (int i = 1; i < resourcelist.length; i++)
 			{
 				resourcelist[i] += justReleased[i];
 				justReleased[i] = 0;
@@ -81,10 +95,7 @@ public class Optimistic {
 			ok.clear();
 			
 			currentcycle++;
-		}
-		
-		
-		
+		}		
 	}
 
 	public void deadlockmethod(int currentcycle) 

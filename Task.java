@@ -1,5 +1,6 @@
 import java.util.*;
-public class Task {
+public class Task 
+{
 	int id;
 	boolean aborted;
 	ArrayList<Action> instructions; 
@@ -14,6 +15,16 @@ public class Task {
 	int finish; 
 	int waiting;
 	
+	public Task (int id, int numResources)
+	{
+		this.id = id;
+		this.instructions = new ArrayList<Action>();
+		resourcesOwn = new int[numResources+1];
+		resourcesNeed = new int[numResources+1];
+		this.finish = 0; 
+		this.currentindex = 0;
+		this.waiting = 0;
+	}
 	public Task(int id, ArrayList<Action> instructions, int numResources)
 	{
 		this.id = id;
@@ -88,7 +99,13 @@ public class Task {
 		this.compute = c;
 	}
 	
-	
+	public void printList()
+	{
+		for (Action a : this.getList())
+		{
+			System.out.println(a.toString());
+		}
+	}
 	
 	
 	
