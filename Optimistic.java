@@ -65,16 +65,26 @@ public class Optimistic
 					{
 						current.terminate(currentcycle);
 						System.out.println("terminating curr cycle " + currentcycle);
-						current.results[0] = currentcycle + "";
+						current.results[0] = (currentcycle) + "";
 						current.results[1] = current.waiting + "";
 						current.results[2] = (int) (((double) current.waiting / (double) (currentcycle) ) * 100) + "%";
 					} 
 					else if ( act.getActivity().equals("compute"))
-					{
-						current.setComputeTime(act.getB());
-						current.currentindex += 1;
+					{	
+						int comp = act.getB();
+						current.setComputeTime(comp);
+						current.compute--;
+						//current.currentindex += 1;
+						
 						//current.incIndex();
 						//act = current.getList().get(index);
+						if (current.getComputeTime() == 0)
+						{
+							current.currentindex += 1;
+							
+						}
+						ok.add(current);
+						/*
 						if (current.isDone() && current.getComputeTime() == 0)
 						{
 							current.terminate(currentcycle);
@@ -82,23 +92,30 @@ public class Optimistic
 							current.results[0] = currentcycle + "";
 							current.results[1] = current.waiting + "";
 							current.results[2] = (int) (((double) current.waiting / (double) currentcycle ) * 100) + "%";
-						}
+						} */
 					}
 				}
 				else {
 					//the task is currently computing
 					//System.out.println("hola");
 					//current.setComputeTime(current.getComputeTime()-1);
-					current.compute -=1;
+					current.compute--;
+					if (current.getComputeTime() == 0)
+					{
+						current.currentindex += 1;
+						
+					}
+					ok.add(current);
+					/*
 					if (current.getComputeTime() == 0 && current.isDone())
 					{
-						//current.terminate(currentcycle);
+						current.terminate(currentcycle);
 						current.finish = currentcycle;
 						current.terminated = true;
 						current.results[0] = currentcycle + "";
 						current.results[1] = current.waiting + "";
 						current.results[2] = (int) (((double) current.waiting / (double) current.finish ) * 100) + "%";
-					}
+					} */
 				}
 		
 			}

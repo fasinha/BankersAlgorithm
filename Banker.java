@@ -120,7 +120,21 @@ public class Banker
 		
 		int available = resourcelist[resource];
 		System.out.println("amt requested by task " + current.getID() + " " + amtrequested);
-		
+		if (current.getComputeTime() > 0)
+		{
+			current.compute-=1;
+			ok.add(current);
+			//current.setComputeTime(current.getComputeTime()-1);
+		}
+		else {
+			if (amtrequested > current.resourcesNeed[resource])
+			{
+				current.abort(currentcycle);
+			}
+			else {
+				
+			}
+		}
 		
 	}
 	
