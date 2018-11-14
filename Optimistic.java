@@ -175,7 +175,7 @@ public class Optimistic
 			}
 			System.out.println(toabort.getID() + " ABORTED");
 			blocked.remove(toabort);
-			break;
+			//break;
 		}
 	}
 
@@ -236,10 +236,11 @@ public class Optimistic
 				ok.add(current);
 				
 			}
+			/*
 			else {
 				current.waiting++;
 				blocked.add(current);
-			}
+			} */
 		}
 	}
 }
