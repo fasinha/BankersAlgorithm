@@ -1,10 +1,13 @@
 
+/*
+ * every instance of this class represents an activity for a particular task 
+ */
 public class Action 
 {
-	String activity; 
-	int a; 
-	int b;
-	int c;
+	String activity; //initiate, request, release, terminate, compute
+	int a; //task number
+	int b; //resource number or blank
+	int c; //depending on what the activity is, the meaning of c will change
 	
 	public Action(String activity, int a, int b, int c)
 	{
@@ -14,6 +17,9 @@ public class Action
 		this.c = c;
 	}
 	
+	/* 
+	 * returns the activity name
+	 */
 	public String getActivity()
 	{
 		return this.activity;

@@ -12,7 +12,9 @@ public class Optimistic
 	
 	int[] justReleased;
 	
-	
+	/*
+	 * instantiates an instance of the optimistic resource manager 
+	 */
 	public Optimistic(int numoftasks, int numresources, int[] resourcelist)
 	{
 		this.numoftasks = numoftasks;
@@ -24,37 +26,41 @@ public class Optimistic
 		justReleased = new int[numresources+1];
 	}
 	
+	/*
+	 * run the optimistic resource manager for a particular array list of tasks 
+	 */
 	public void run(ArrayList<Task> tasklist)
 	{
-		//System.out.println(justReleased.length);
+		
 		int currentcycle = 0;
 		
+		//we add all the lists to a list representing active tasks
 		for (Task t : tasklist)
 		{
 			active.add(t);
 		}
 		
-		//System.out.println(active.size());
+		
 		while (active.size() > 0)
 		{
+			//loop through all the elements in the active task list 
 			for (int i = 0; i < active.size(); i++)
 			{
 				Task current = active.get(i);
-				int index = current.getIndex(); 
-				//System.out.println(index);
-				Action act = current.getList().get(index);
+				int index = current.getIndex(); //get the index we are currently at in the list of activities for the task 
+				
+				Action act = current.getList().get(index); //get the current activity
+				//while this task is not computing right now 
 				if (current.getComputeTime() == 0)
 				{
 					if ( act.getActivity().equals("initiate"))
-					{
-						System.out.println("initiated task " + current.getID());
-						
+					{			
+						//the optimistic manager does not make any claims so we just go to the next activity 
 						current.currentindex +=1; 
 						ok.add(current);
 					}
 					else if ( act.getActivity().equals("request"))
 					{
-						System.out.println("request task " + current.getID());
 						request(current, act);
 					}
 					else if ( act.getActivity().equals("release"))
@@ -64,73 +70,49 @@ public class Optimistic
 					else if ( act.getActivity().equals("terminate"))
 					{
 						current.terminate(currentcycle);
-						System.out.println("terminating curr cycle " + currentcycle);
+						
+						//add the total and waiting times for this task to its result array
 						current.results[0] = (currentcycle) + "";
 						current.results[1] = current.waiting + "";
 						current.results[2] = (int) (((double) current.waiting / (double) (currentcycle) ) * 100) + "%";
 					} 
 					else if ( act.getActivity().equals("compute"))
 					{	
-						int comp = act.getB();
-						current.setComputeTime(comp);
-						current.compute--;
-						//current.currentindex += 1;
-						
-						//current.incIndex();
-						//act = current.getList().get(index);
+						int comp = act.getB(); //get the compute time from the activity string 
+						current.setComputeTime(comp); //set the compute time for the task
+						current.compute--; //decrement the compute time 
+					
+						//if we are done computing, move to the next activity
 						if (current.getComputeTime() == 0)
 						{
 							current.currentindex += 1;
 							
 						}
 						ok.add(current);
-						/*
-						if (current.isDone() && current.getComputeTime() == 0)
-						{
-							current.terminate(currentcycle);
-							System.out.println("terminating computing curr cycle " + currentcycle);
-							current.results[0] = currentcycle + "";
-							current.results[1] = current.waiting + "";
-							current.results[2] = (int) (((double) current.waiting / (double) currentcycle ) * 100) + "%";
-						} */
 					}
 				}
 				else {
 					//the task is currently computing
-					//System.out.println("hola");
-					//current.setComputeTime(current.getComputeTime()-1);
+					
 					current.compute--;
+					//if the computing is done, go to the next activity
 					if (current.getComputeTime() == 0)
 					{
 						current.currentindex += 1;
 						
 					}
 					ok.add(current);
-					/*
-					if (current.getComputeTime() == 0 && current.isDone())
-					{
-						current.terminate(currentcycle);
-						current.finish = currentcycle;
-						current.terminated = true;
-						current.results[0] = currentcycle + "";
-						current.results[1] = current.waiting + "";
-						current.results[2] = (int) (((double) current.waiting / (double) current.finish ) * 100) + "%";
-					} */
 				}
 		
 			}
 			
-			//System.out.println("reached ");
+			//if there are no ok tasks and there is at least one task in the blocked list then we have deadlock 
 			if (blocked.size() > 0 && ok.size() == 0)
 			{
-				System.out.println("deadlock reached here");
 				deadlockmethod(currentcycle);
-				//System.exit(0);
-				//break;
 			}
 			
-			//System.out.println(resourcelist.length);
-			//System.out.println(justReleased.length);
+			//add the resources released in this cycle to the array of available resources
 			for (int i = 1; i < resourcelist.length; i++)
 			{
 				resourcelist[i] += justReleased[i];
@@ -143,20 +125,25 @@ public class Optimistic
 			active.addAll(ok);
 			blocked.clear();
 			ok.clear();
-			System.out.println(active.size());
+			
 			currentcycle++;
-			System.out.println("current cycle " + currentcycle);
-			//System.out.println("reached end");
+			
 		}		
 	}
 
+	/*
+	 * This method resolves deadlock by aborting the task with the lowest index 
+	 */
 	public void deadlockmethod(int currentcycle) 
 	{
 		int aborted = blocked.size() -1;
 		int lowest = 500;
 		int abort_index = 0; 
+		
+		//loop through potential tasks
 		for (int i = 0; i < aborted; i++)
 		{
+			//loop through the blocked tasks and find the one with the lowest index 
 			for (int j = 0; j < blocked.size(); j++)
 			{
 				Task b = blocked.get(j);
@@ -173,7 +160,7 @@ public class Optimistic
 			{
 				justReleased[k] += toabort.resourcesOwn[k];
 			}
-			System.out.println(toabort.getID() + " ABORTED");
+			//System.out.println(toabort.getID() + " ABORTED");
 			blocked.remove(toabort);
 			//break;
 		}
@@ -188,7 +175,7 @@ public class Optimistic
 		//System.out.println(Arrays.toString(resourcelist));
 		//System.exit(0);
 		int available = resourcelist[resource];
-		System.out.println("amt requested by task " + current.getID() + " " + amtrequested);
+		//System.out.println("amt requested by task " + current.getID() + " " + amtrequested);
 		//System.out.println("available = " + available);
 		
 		if (current.getComputeTime() > 0)
@@ -205,12 +192,12 @@ public class Optimistic
 				current.receive(resource, amtrequested);
 				current.currentindex += 1;
 				ok.add(current);
-				System.out.println("Task " + current.getID() + " request granted");
+				//System.out.println("Task " + current.getID() + " request granted");
 			}
 			else {
 				current.waiting++;
 				blocked.add(current);
-				System.out.println("task " + current.getID() + " request cannot be granted");
+				//System.out.println("task " + current.getID() + " request cannot be granted");
 			}
 		}
 	}

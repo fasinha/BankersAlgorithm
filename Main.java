@@ -16,21 +16,21 @@ public class Main {
 		int[] resourcelist = new int[numresources+1];
 		
 		ArrayList<Task> tasklist = new ArrayList<Task>();
-		//tasklist.add(null);
+		
 		for (int i = 0; i < numtasks; i++)
 		{
 			Task t = new Task(i+1, numresources);
 			tasklist.add(t);
-			//System.out.println( "task id" + tasklist.get(i).getID() );
+			
 		}
-		//System.out.println(tasklist.size());
+		
 		resourcelist[0] = 0;
 		for (int i = 1; i < resourcelist.length; i++)
 		{
 			resourcelist[i] = Integer.parseInt(split[i+1]);
 			
 		}
-		//System.out.println("this resource list is length " + resourcelist.length);
+		
 		while (scan.hasNext())
 		{
 			ArrayList<Action> instructionlist = new ArrayList<Action>();
@@ -39,32 +39,36 @@ public class Main {
 			int b = Integer.parseInt(scan.next()); 
 			int c = Integer.parseInt(scan.next());
 			Action action = new Action(act, a, b, c); 
-			//System.out.println(a);
+			
 			Task t = tasklist.get(a-1);
 			t.getList().add(action);
 		}
 		
-		/*
-		for (Task t : tasklist)
-		{
-			System.out.println("Task " + t.getID() + " --" + t.getList().toString());
-		} */
-		
+		//create an instance of the optimistic resource manager 
 		Optimistic o = new Optimistic(numtasks, numresources, resourcelist);
-		o.run(tasklist);
+		o.run(tasklist); //run the manager 
+		
+		//Print the output
 		System.out.println("\tFIFO");
+		int total = 0;
+		int wait = 0; 
 		for (Task t : tasklist)
 		{
-			System.out.print("Task " + t.getID() + "\t");
+			System.out.print("Task " + t.getID() + "      ");
 			if (t.aborted == true)
 			{
 				System.out.print("aborted");
 				System.out.println();
 			}
 			else {
+				total += Integer.parseInt(t.results[0]);
+				wait += Integer.parseInt(t.results[1]);
 				t.printResults();
 				System.out.println();
 			}
 		}
+		//System.out.println("total= " + total);
+		String percent = (int) (((double) wait / (double) total ) * 100) + "%";
+		System.out.print("Total       " + total + "   " + wait + "   " + percent);
 	}
 }
