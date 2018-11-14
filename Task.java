@@ -11,6 +11,7 @@ public class Task
 	int[] resourcesOwn;
 	int[] resourcesNeed;
 	boolean terminated;
+	boolean canFinish; 
 	
 	int finish; 
 	int waiting;
@@ -26,6 +27,7 @@ public class Task
 		this.finish = 0; 
 		this.currentindex = 0;
 		this.waiting = 0;
+		canFinish = true; 
 	}
 	public Task(int id, ArrayList<Action> instructions, int numResources)
 	{
@@ -36,6 +38,7 @@ public class Task
 		this.finish = 0; 
 		this.currentindex = 0;
 		this.waiting = 0;
+		canFinish = true;
 	}
 	
 	public void receive(int resource, int amt)

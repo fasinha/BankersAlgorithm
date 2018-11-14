@@ -44,6 +44,16 @@ public class Main {
 			t.getList().add(action);
 		}
 		
+		ArrayList<Task> bankerlist = new ArrayList<Task>();
+		for (Task t : tasklist)
+		{
+			bankerlist.add(t);
+		}
+		
+		//----------------------------------------------------------------
+		//RUN OPTIMISTIC
+		
+		/*
 		//create an instance of the optimistic resource manager 
 		Optimistic o = new Optimistic(numtasks, numresources, resourcelist);
 		o.run(tasklist); //run the manager 
@@ -69,6 +79,39 @@ public class Main {
 		}
 		//System.out.println("total= " + total);
 		String percent = (int) (((double) wait / (double) total ) * 100) + "%";
-		System.out.print("Total       " + total + "   " + wait + "   " + percent);
+		System.out.print("Total      " + total + "   " + wait + "   " + percent);
+		
+		*/
+		
+		
+		//--------------------------------------------------------------------------
+		//RUN BANKER 
+		
+		Banker b = new Banker(numtasks, numresources, resourcelist);
+		b.run(bankerlist); //run the manager 
+		
+		//Print the output
+		System.out.println("\tBanker");
+		int bankertotal = 0;
+		int bankerwait = 0; 
+		for (Task t : bankerlist)
+		{
+			System.out.print("Task " + t.getID() + "      ");
+			if (t.aborted == true)
+			{
+				System.out.print("aborted");
+				System.out.println();
+			}
+			else {
+				bankertotal += Integer.parseInt(t.results[0]);
+				bankerwait += Integer.parseInt(t.results[1]);
+				t.printResults();
+				System.out.println();
+			}
+		}
+		//System.out.println("total= " + total);
+		String bankerpercent = (int) (((double) bankerwait / (double) bankertotal ) * 100) + "%";
+		System.out.print("Total      " + bankertotal + "   " + bankerwait + "   " + bankerpercent);
+		
 	}
 }

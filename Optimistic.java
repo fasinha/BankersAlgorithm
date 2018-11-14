@@ -160,29 +160,26 @@ public class Optimistic
 			{
 				justReleased[k] += toabort.resourcesOwn[k];
 			}
-			//System.out.println(toabort.getID() + " ABORTED");
+			
 			blocked.remove(toabort);
-			//break;
+			
 		}
 	}
 
 	public void request(Task current, Action act) 
 	{
 		int resource = act.getB();
-		//System.out.println("resource " + resource);
-		//System.out.println(resourcelist.length);
+		
 		int amtrequested = act.getC();
-		//System.out.println(Arrays.toString(resourcelist));
-		//System.exit(0);
+		
 		int available = resourcelist[resource];
-		//System.out.println("amt requested by task " + current.getID() + " " + amtrequested);
-		//System.out.println("available = " + available);
+		
 		
 		if (current.getComputeTime() > 0)
 		{
 			current.compute-=1;
 			ok.add(current);
-			//current.setComputeTime(current.getComputeTime()-1);
+			
 		}
 		else {
 			if (available >= amtrequested)
@@ -192,12 +189,12 @@ public class Optimistic
 				current.receive(resource, amtrequested);
 				current.currentindex += 1;
 				ok.add(current);
-				//System.out.println("Task " + current.getID() + " request granted");
+				
 			}
 			else {
 				current.waiting++;
 				blocked.add(current);
-				//System.out.println("task " + current.getID() + " request cannot be granted");
+				
 			}
 		}
 	}
@@ -223,11 +220,6 @@ public class Optimistic
 				ok.add(current);
 				
 			}
-			/*
-			else {
-				current.waiting++;
-				blocked.add(current);
-			} */
 		}
 	}
 }

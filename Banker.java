@@ -62,7 +62,7 @@ public class Banker
 					else if ( act.getActivity().equals("request"))
 					{
 						System.out.println("request task " + current.getID());
-						request(current, act);
+						request(current, act, currentcycle);
 					}
 					else if ( act.getActivity().equals("release"))
 					{
@@ -109,10 +109,20 @@ public class Banker
 				}
 		
 			}
+			
+			active.clear();
+			active.addAll(blocked);
+			active.addAll(ok);
+			blocked.clear();
+			ok.clear();
+			
+			currentcycle++;
 		}
+		
+		
 	}
 
-	public void request(Task current, Action act) 
+	public void request(Task current, Action act, int currentcycle) 
 	{
 		int resource = act.getB();
 		
@@ -132,9 +142,103 @@ public class Banker
 				current.abort(currentcycle);
 			}
 			else {
+				if (available >= amtrequested && isSafeState(current, act))
+				{
+					resourcelist[resource] -= amtrequested;
+					current.receive(resource, amtrequested);
+					current.currentindex++;
+					ok.add(current);
+				}
+				else if (available >= amtrequested && !isSafeState(current, act))
+				{
+					current.waiting++;
+					blocked.add(current);
+				}
+				else {
+					current.waiting++;
+					blocked.add(current);
+				}
+			}
+		}
+		
+	}
+
+	public void release(Task current, Action act)
+	{
+		int resource = act.getB();
+		int amtreleased = act.getC();
+		int currentown = current.resourcesOwn[resource];
+		
+		if(current.getComputeTime() > 0)
+		{
+			current.compute-=1;
+			//current.setComputeTime(current.getComputeTime()-1);
+			ok.add(current);
+		}
+		else {
+			if (currentown >= amtreleased)
+			{
+				justReleased[resource] += amtreleased;
+				current.release(resource, amtreleased);
+				current.currentindex += 1;
+				ok.add(current);
 				
 			}
 		}
+	}
+	
+	public boolean isSafeState(Task current, Action act) 
+	{
+		Task temp = current;
+		ArrayList<Task> temptasklist = new ArrayList<Task>();
+		for (Task t : active)
+		{
+			temptasklist.add(t);
+		}
+		
+		int[] tempresourcelist = new int[numresources+1];
+		
+		for (int i = 0; i < tempresourcelist.length; i++)
+		{
+			tempresourcelist[i] = resourcelist[i];
+		}
+		
+		//now simulate the request
+		int r = act.getB();
+		int amtrequest = act.getC();
+		temp.resourcesNeed[r] -= amtrequest;
+		temp.resourcesOwn[r] += amtrequest;
+		
+		while (temptasklist.size() > 0)
+		{
+			boolean potentiallysafe = false;
+			for (int i = 0; i < temptasklist.size(); i++)
+			{
+				for (int j = 1; j < numresources+1; j++)
+				{
+					if (temptasklist.get(i).resourcesNeed[j] > tempresourcelist[j])
+					{
+						temptasklist.get(i).canFinish = false;
+					}
+				}
+				
+				for (int k = 0; k < temptasklist.size(); k++)
+				{
+					if (temptasklist.get(k).canFinish)
+					{
+						for (int m = 1; m < numresources+1; m++)
+						{
+							tempresourcelist[m] += temptasklist.get(k).resourcesOwn[m];
+						}
+						temptasklist.remove(k);
+					}
+					
+				}
+				
+			}
+			if (temptasklist.size() == 0) return true;
+		}
+		return false; 
 		
 	}
 	
