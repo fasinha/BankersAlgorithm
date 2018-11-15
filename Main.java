@@ -16,11 +16,14 @@ public class Main {
 		int[] resourcelist = new int[numresources+1];
 		
 		ArrayList<Task> tasklist = new ArrayList<Task>();
+		ArrayList<Task> bankerlist = new ArrayList<Task>();
 		
 		for (int i = 0; i < numtasks; i++)
 		{
 			Task t = new Task(i+1, numresources);
+			Task btask = new Task(i+1, numresources);
 			tasklist.add(t);
+			bankerlist.add(btask);
 			
 		}
 		
@@ -41,19 +44,24 @@ public class Main {
 			Action action = new Action(act, a, b, c); 
 			
 			Task t = tasklist.get(a-1);
+			Task other = bankerlist.get(a-1);
 			t.getList().add(action);
+			other.getList().add(action);
 		}
 		
-		ArrayList<Task> bankerlist = new ArrayList<Task>();
-		for (Task t : tasklist)
+		
+		
+		
+		int[] bankerresourcelist = new int[numresources+1];
+		for (int i = 1; i < numresources+1; i++)
 		{
-			bankerlist.add(t);
+			bankerresourcelist[i] = resourcelist[i];
 		}
 		
 		//----------------------------------------------------------------
 		//RUN OPTIMISTIC
 		
-		/*
+		
 		//create an instance of the optimistic resource manager 
 		Optimistic o = new Optimistic(numtasks, numresources, resourcelist);
 		o.run(tasklist); //run the manager 
@@ -79,15 +87,15 @@ public class Main {
 		}
 		//System.out.println("total= " + total);
 		String percent = (int) (((double) wait / (double) total ) * 100) + "%";
-		System.out.print("Total      " + total + "   " + wait + "   " + percent);
+		System.out.print("Total       " + total + "   " + wait + "   " + percent);
 		
-		*/
-		
+		System.out.println();
+		System.out.println();
 		
 		//--------------------------------------------------------------------------
 		//RUN BANKER 
 		
-		Banker b = new Banker(numtasks, numresources, resourcelist);
+		BankerNew b = new BankerNew(numtasks, numresources, bankerresourcelist);
 		b.run(bankerlist); //run the manager 
 		
 		//Print the output
@@ -111,7 +119,7 @@ public class Main {
 		}
 		//System.out.println("total= " + total);
 		String bankerpercent = (int) (((double) bankerwait / (double) bankertotal ) * 100) + "%";
-		System.out.print("Total      " + bankertotal + "   " + bankerwait + "   " + bankerpercent);
+		System.out.print("Total       " + bankertotal + "   " + bankerwait + "   " + bankerpercent);
 		
 	}
 }

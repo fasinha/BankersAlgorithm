@@ -184,12 +184,10 @@ public class Optimistic
 		else {
 			if (available >= amtrequested)
 			{
-				
 				resourcelist[resource] -= amtrequested;
 				current.receive(resource, amtrequested);
 				current.currentindex += 1;
 				ok.add(current);
-				
 			}
 			else {
 				current.waiting++;

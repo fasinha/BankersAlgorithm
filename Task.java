@@ -8,6 +8,7 @@ public class Task
 	int compute;
 	int currentindex;
 	
+	int[] maxclaim; 
 	int[] resourcesOwn;
 	int[] resourcesNeed;
 	boolean terminated;
@@ -24,10 +25,11 @@ public class Task
 		this.instructions = new ArrayList<Action>();
 		resourcesOwn = new int[numResources+1];
 		resourcesNeed = new int[numResources+1];
+		maxclaim = new int[numResources+1];
 		this.finish = 0; 
 		this.currentindex = 0;
 		this.waiting = 0;
-		canFinish = true; 
+		canFinish = false; 
 	}
 	public Task(int id, ArrayList<Action> instructions, int numResources)
 	{
@@ -35,10 +37,11 @@ public class Task
 		this.instructions = instructions;
 		resourcesOwn = new int[numResources+1];
 		resourcesNeed = new int[numResources+1];
+		maxclaim = new int[numResources+1];
 		this.finish = 0; 
 		this.currentindex = 0;
 		this.waiting = 0;
-		canFinish = true;
+		canFinish = false;
 	}
 	
 	public void receive(int resource, int amt)

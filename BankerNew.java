@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Banker 
+public class BankerNew
 {
 	int numoftasks;
 	int numresources;
@@ -12,7 +12,7 @@ public class Banker
 	
 	int[] justReleased;
 	
-	public Banker(int numoftasks, int numresources, int[] resourcelist)
+	public BankerNew(int numoftasks, int numresources, int[] resourcelist)
 	{
 		this.numoftasks = numoftasks;
 		this.numresources = numresources;
@@ -23,7 +23,7 @@ public class Banker
 		justReleased = new int[numresources+1];
 		for (int i = 0; i < resourcelist.length; i++)
 		{
-			System.out.print(resourcelist[i] + " ");
+			//System.out.print(resourcelist[i] + " ");
 		}
 	}
 	
@@ -36,9 +36,9 @@ public class Banker
 		{
 			active.add(t);
 		}
-		
 		while (active.size() > 0)
-		{
+		{   
+			//System.out.println("Begin CYCLE "+ currentcycle+"\n");
 			for (int i = 0; i < active.size(); i++)
 			{
 				Task current = active.get(i);
@@ -51,21 +51,14 @@ public class Banker
 					{
 						//System.out.println("initiated task " + current.getID());
 						int r = act.getB(); //resource type 
-						int maxclaim = act.getC();
-						if(maxclaim > resourcelist[r])
-						{
-							System.out.println("initial claim exceeds amount of units for resource");
+						
+						if(act.getC() > resourcelist[r])
+						{   
 							current.abort(currentcycle);
-							for (int k = 1; k < numresources+1; k++)
-							{
-								
-								resourcelist[k] += current.resourcesOwn[k];
-								current.release(k, current.resourcesOwn[k]);
-							}
 						}
 						else {
-							current.resourcesNeed[r] = act.getC(); //set resources need to amount needed
 							current.maxclaim[r] = act.getC();
+							current.resourcesNeed[r] = act.getC(); //set resources need to amount needed
 							current.currentindex +=1; 
 							ok.add(current);
 						}
@@ -78,13 +71,12 @@ public class Banker
 					}
 					else if ( act.getActivity().equals("release"))
 					{
-						System.out.println("releasing");
 						release(current, act);
 					}
 					else if ( act.getActivity().equals("terminate"))
 					{
 						current.terminate(currentcycle);
-						System.out.println("terminating curr cycle " + currentcycle);
+						//System.out.println("terminating curr cycle " + currentcycle);
 						current.results[0] = currentcycle + "";
 						current.results[1] = current.waiting + "";
 						current.results[2] = (int) (((double) current.waiting / (double) (currentcycle) ) * 100) + "%";
@@ -92,43 +84,38 @@ public class Banker
 					else if ( act.getActivity().equals("compute"))
 					{
 						current.setComputeTime(act.getB());
-						current.currentindex += 1;
+						//current.currentindex += 1;
+						current.compute--;
 						//current.incIndex();
 						//act = current.getList().get(index);
-						if (current.isDone() && current.getComputeTime() == 0)
+						if (current.getComputeTime() == 0)
 						{
-							current.terminate(currentcycle);
-							System.out.println("terminating computing curr cycle " + currentcycle);
-							current.results[0] = currentcycle + "";
-							current.results[1] = current.waiting + "";
-							current.results[2] = (int) (((double) current.waiting / (double) currentcycle ) * 100) + "%";
+							current.currentindex += 1;
+							
 						}
+						ok.add(current);
 					}
 				}
 				else {
 					//the task is currently computing
-					//System.out.println("hola");
-					//current.setComputeTime(current.getComputeTime()-1);
-					current.compute -=1;
-					if (current.getComputeTime() == 0 && current.isDone())
+					
+					current.compute--;
+					//if the computing is done, go to the next activity
+					if (current.getComputeTime() == 0)
 					{
-						current.terminate(currentcycle);
-						current.finish = currentcycle;
-						current.terminated = true;
-						current.results[0] = currentcycle + "";
-						current.results[1] = current.waiting + "";
-						current.results[2] = (int) (((double) current.waiting / (double) current.finish ) * 100) + "%";
+						current.currentindex += 1;
+						
 					}
+					ok.add(current);
 				}
 		
 			}
-			//System.out.println("Done here");
+			
 			active.clear();
 			active.addAll(blocked);
 			active.addAll(ok);
 			blocked.clear();
 			ok.clear();
-			
 			currentcycle++;
 		}
 		
@@ -137,17 +124,14 @@ public class Banker
 
 	public void request(Task current, Action act, int currentcycle) 
 	{
-		System.out.println("currentcycle " + currentcycle);
-		System.out.println(act.toString());
 		int resource = act.getB();
-		
 		int amtrequested = act.getC();
-		System.out.println("amtreq " + amtrequested);
+		//System.out.println("amtreq " + amtrequested);
 		
 		int available = resourcelist[resource];
-		System.out.println("available " + available);
+		//System.out.println("available " + available);
 		//System.out.println("resourc);
-		System.out.println("amt requested by task " + current.getID() + " " + amtrequested);
+		//System.out.println("amt requested by task " + current.getID() + " " + amtrequested);
 		if (current.getComputeTime() > 0)
 		{
 			current.compute-=1;
@@ -155,38 +139,43 @@ public class Banker
 			//current.setComputeTime(current.getComputeTime()-1);
 		}
 		else {
-			if (amtrequested > current.maxclaim[resource])
-			{
-				current.abort(currentcycle); //abort the task
-				//release the task's resources
+			if (amtrequested > current.resourcesNeed[resource])
+			{   
 				for (int k = 1; k < numresources+1; k++)
 				{
 					resourcelist[k] += current.resourcesOwn[k];
 					current.release(k, current.resourcesOwn[k]);
 				}
-				System.out.println("Task " + current.getID() + " aborted. Amt requested exceeded max claim");
+				current.abort(currentcycle);
+				//System.out.println("aborted");
 			}
 			else {
-				System.out.println("reached here ihjjgh");
+				int r = act.getB();
+				int amtrequest = act.getC();
+				current.resourcesNeed[r] -= amtrequest;
+				current.resourcesOwn[r] += amtrequest;
+				resourcelist[resource]-=amtrequest;
 				boolean safe = isSafeState(current, act);
-				System.out.println("safe? " + safe);
+				//System.out.println("safe? " + safe);
 				if (available >= amtrequested && safe)
-				{
-					System.out.println("hi");
-					resourcelist[resource] -= amtrequested;
-					current.receive(resource, amtrequested);
-					current.currentindex+=1;
+				{  
+					//System.out.println("hi");
+					current.currentindex++;
 					ok.add(current);
 				}
-				else if (available >= amtrequested && (safe == false))
-				{
-					System.out.println("not safe ");
+				else if (available >= amtrequested && !safe)
+				{  current.resourcesNeed[r] += amtrequest;
+				   current.resourcesOwn[r] -= amtrequest;
+				   resourcelist[resource]+=amtrequest;
+					//System.out.println("not safe ");
 					current.waiting++;
-					//System.out.println("currently waiting " + current.waiting);
 					blocked.add(current);
 				}
 				else {
-					System.out.println("what");
+					current.resourcesNeed[r] += amtrequest;
+					current.resourcesOwn[r] -= amtrequest;
+					resourcelist[resource]+=amtrequest;
+					//System.out.println("what");
 					current.waiting++;
 					blocked.add(current);
 				}
@@ -209,11 +198,13 @@ public class Banker
 		}
 		else {
 			if (currentown >= amtreleased)
-			{
-				justReleased[resource] += amtreleased;
+			{  
+				resourcelist[resource] += amtreleased;
+				//System.out.println(resourcelist[resource]+"DOG");
 				current.release(resource, amtreleased);
 				current.currentindex += 1;
 				ok.add(current);
+				//System.out.println(current.id+" RELEASED "+amtreleased);
 				
 			}
 		}
@@ -221,68 +212,50 @@ public class Banker
 	
 	public boolean isSafeState(Task current, Action act) 
 	{
-		Task temp = new Task(current.getID(), numresources);
-		
-		
+		//Task temp = current;
 		ArrayList<Task> temptasklist = new ArrayList<Task>();
 		for (Task t : active)
 		{
 			temptasklist.add(t);
 		}
+		boolean[] finish=new boolean [temptasklist.size()];
 		
 		int[] tempresourcelist = new int[numresources+1];
 		
-		for (int i = 1; i < numresources+1; i++)
+		for (int i = 0; i < tempresourcelist.length; i++)
 		{
 			tempresourcelist[i] = resourcelist[i];
 		}
 		
-		//now simulate the request
-		int r = act.getB();
-		int amtrequest = act.getC();
-		temp.resourcesNeed[r] -= amtrequest;
-		temp.resourcesOwn[r] += amtrequest;
-		
-		boolean potentiallysafe = true;
-		while (potentiallysafe)
+		int count=0;
+		while (temptasklist.size() > count)
 		{
-			potentiallysafe = false;
-			System.out.println(act.toString());
-			//boolean potentiallysafe = false;
+			boolean potentiallysafe = false;
 			for (int i = 0; i < temptasklist.size(); i++)
-			{
-				//
-				temptasklist.get(i).canFinish = true;
-				for (int j = 1; j < numresources+1; j++)
-				{
-					System.out.println("reached here");
+			{   int j = 1;
+				for ( j = 1; j < numresources+1; j++)
+				{ if(finish[i]==false) {
 					if (temptasklist.get(i).resourcesNeed[j] > tempresourcelist[j])
-					{
-						temptasklist.get(i).canFinish = false;
-						System.out.println("set can finish to false");
+					{  
+						break;
 					}
+				 }
+				}
+				if(j==numresources+1) {
+					for (int m = 1; m < numresources+1; m++)
+					{
+						tempresourcelist[m] += temptasklist.get(i).resourcesOwn[m];
+					}
+					finish[i]=true;
+					potentiallysafe=true;
+					count++;
 				}
 				
-				for (int k = 0; k < temptasklist.size(); k++)
-				{
-					if (temptasklist.get(k).canFinish == true)
-					{
-						for (int m = 1; m < numresources+1; m++)
-						{
-							tempresourcelist[m] += temptasklist.get(k).resourcesOwn[m];
-							temptasklist.get(k).release(k, temptasklist.get(k).resourcesOwn[m
-							                                                                ]);
-						}
-						temptasklist.remove(k);
-						System.out.println("size " + temptasklist.size());
-					}
-					
-				}
 				
 			}
-			if (temptasklist.size() == 0) return true;
+			if (potentiallysafe == false) return false;
 		}
-		return false; 
+		return true; 
 		
 	}
 	
