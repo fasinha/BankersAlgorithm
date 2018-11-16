@@ -1,6 +1,6 @@
 
 /*
- * every instance of this class represents an activity for a particular task 
+ * Every instance of this class represents an activity for a particular task 
  */
 public class Action 
 {

@@ -63,7 +63,7 @@ public class Main {
 		
 		
 		//create an instance of the optimistic resource manager 
-		Optimistic o = new Optimistic(numtasks, numresources, resourcelist);
+		OptimisticTest o = new OptimisticTest(numtasks, numresources, resourcelist);
 		o.run(tasklist); //run the manager 
 		
 		//Print the output

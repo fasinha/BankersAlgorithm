@@ -2,13 +2,13 @@ import java.util.*;
 
 public class BankerNew
 {
-	int numoftasks;
-	int numresources;
-	int[] resourcelist;
+	int numoftasks; //number of tasks
+	int numresources; //number of resources
+	int[] resourcelist; //array of units for each resource 
 	
-	ArrayList<Task> active;
-	ArrayList<Task> blocked; 
-	ArrayList<Task> ok; 
+	ArrayList<Task> active; //list of actively working tasks
+	ArrayList<Task> blocked; //list of blocked tasks
+	ArrayList<Task> ok; //list of nonblocked tasks 
 	
 	int[] justReleased;
 	
@@ -238,7 +238,7 @@ public class BankerNew
 		}
 		
 		//create an array with boolean values representing whether each task can complete or not 
-		boolean[] finish=new boolean [temptasklist.size()];
+		boolean[] finish = new boolean [temptasklist.size()];
 		
 		//create copy of the array of resources 
 		int[] tempresourcelist = new int[numresources+1];
@@ -254,13 +254,17 @@ public class BankerNew
 		while (temptasklist.size() > count)
 		{
 			boolean potentiallysafe = false; //we do not know if we are in a safe state or not 
+			//loop through the list of tasks 
 			for (int i = 0; i < temptasklist.size(); i++)
 			{   
 				int j = 1;
 				for ( j = 1; j < numresources+1; j++)
 				{ 
+					//if this particular task cannot be completed, then 
 					if(finish[i] == false) 
 					{
+						//if the number of units of the resource needed are more than the units of the resource left
+						//break out of the loop altogether 
 						if (temptasklist.get(i).resourcesNeed[j] > tempresourcelist[j])
 						{  
 							break;
