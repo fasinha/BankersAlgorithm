@@ -1,4 +1,4 @@
-# BankersAlgorithm
+# Bankers Algorithm
 
 This project was done for Operating Systems -- Fall 2018 with Professor Yan Shvartznaider. The program is a resource manager and runs 
 two resource allocation methods, one optimistic and one using the Banker's Algorithm. 
