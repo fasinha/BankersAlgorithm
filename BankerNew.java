@@ -6,7 +6,7 @@ public class BankerNew
 	int numresources; //number of resources
 	int[] resourcelist; //array of units for each resource 
 	
-	ArrayList<Task> active; //list of actively working tasks
+	ArrayList<Task> running; //list of runningly working tasks
 	ArrayList<Task> blocked; //list of blocked tasks
 	ArrayList<Task> ok; //list of nonblocked tasks 
 	
@@ -17,7 +17,7 @@ public class BankerNew
 		this.numoftasks = numoftasks;
 		this.numresources = numresources;
 		this.resourcelist = resourcelist;
-		active = new ArrayList<Task>();
+		running = new ArrayList<Task>();
 		blocked = new ArrayList<Task>();
 		ok = new ArrayList<Task>();
 		justReleased = new int[numresources+1];
@@ -31,15 +31,15 @@ public class BankerNew
 		
 		for (Task t : tasklist)
 		{
-			active.add(t);
+			running.add(t);
 		}
 		
-		while (active.size() > 0)
+		while (running.size() > 0)
 		{   
 			//System.out.println("Begin CYCLE "+ currentcycle+"\n");
-			for (int i = 0; i < active.size(); i++)
+			for (int i = 0; i < running.size(); i++)
 			{
-				Task current = active.get(i); //get the i'th task
+				Task current = running.get(i); //get the i'th task
 				int index = current.getIndex(); //get the current index of the activity list 
 				Action act = current.getList().get(index); //get the current activity 
 				//if the task is not currently computing 
@@ -114,10 +114,10 @@ public class BankerNew
 		
 			}
 			
-			//clear the active array list and add first the blocked tasks and then the ok tasks 
-			active.clear();
-			active.addAll(blocked);
-			active.addAll(ok);
+			//clear the running array list and add first the blocked tasks and then the ok tasks 
+			running.clear();
+			running.addAll(blocked);
+			running.addAll(ok);
 			blocked.clear();
 			ok.clear();
 			currentcycle++;
@@ -151,7 +151,7 @@ public class BankerNew
 				for (int k = 1; k < numresources+1; k++)
 				{
 					resourcelist[k] += current.resourcesOwn[k];
-					current.release(k, current.resourcesOwn[k]);
+					current.releaseUnits(k, current.resourcesOwn[k]);
 				}
 				current.abort(currentcycle); //abort the task
 				//System.out.println("aborted");
@@ -215,7 +215,7 @@ public class BankerNew
 			if (currentown >= amtreleased)
 			{  
 				resourcelist[resource] += amtreleased; //return the resources to the available resources
-				current.release(resource, amtreleased); //release this task's resources
+				current.releaseUnits(resource, amtreleased); //release this task's resources
 				current.currentindex += 1; //move on to the next activity
 				ok.add(current); //add this task to the list of ok tasks
 				//System.out.println(current.id+" RELEASED "+amtreleased);
@@ -227,14 +227,15 @@ public class BankerNew
 	/*
 	 * This method checks whether the current state is safe
 	 * returns true if the state is safe, and false otherwise 
+	 * simulates a request being granted and then checks to see if tasks can be completed 
 	 */
 	public boolean isSafeState(Task current, Action act) 
 	{
-		//create temporary task list which is a copy of the active tasks 
+		//create temporary task list which is a copy of the running tasks 
 		ArrayList<Task> temptasklist = new ArrayList<Task>(); 
-		for (Task t : active)
+		for (Task t : running)
 		{
-			temptasklist.add(t); //copy tasks from active into temporary list 
+			temptasklist.add(t); //copy tasks from running into temporary list 
 		}
 		
 		//create an array with boolean values representing whether each task can complete or not 
@@ -260,7 +261,7 @@ public class BankerNew
 				int j = 1;
 				for ( j = 1; j < numresources+1; j++)
 				{ 
-					//if this particular task cannot be completed, then 
+					//check the completable state of the task 
 					if(finish[i] == false) 
 					{
 						//if the number of units of the resource needed are more than the units of the resource left
@@ -271,22 +272,23 @@ public class BankerNew
 						}
 					}
 				}
-				if(j == numresources+1 ) 
+				if(j == numresources + 1 ) 
 				{
+					//simulate the termination of a task by releasing the task's resources 
 					for (int m = 1; m < numresources+1; m++)
 					{
 						tempresourcelist[m] += temptasklist.get(i).resourcesOwn[m];
 					}
 					finish[i]=true;
-					potentiallysafe=true;
+					potentiallysafe=true; //the state of the system is safe 
 					count++;
 				}
 				
 				
 			}
-			if (potentiallysafe == false) return false;
+			if (potentiallysafe == false) return false; //if the system is in an unsafe state, return false 
 		}
-		return true; 
+		return true; //if we get here, the state of the system is safe and we can return true; 
 		
 	}
 	

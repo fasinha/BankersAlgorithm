@@ -6,31 +6,31 @@ public class Main {
 	
 	public static void main(String[] args) throws FileNotFoundException
 	{
-		File input = new File(args[0]);
+		File input = new File(args[0]); //read in the input file 
 		Scanner scan = new Scanner(input);
 		String first = scan.nextLine();
 		String[] split = first.split(" ");
-		int numtasks = Integer.parseInt(split[0]);
-		int numresources = Integer.parseInt(split[1]);
+		int numtasks = Integer.parseInt(split[0]); //number of tasks 
+		int numresources = Integer.parseInt(split[1]); //number of resources 
 		
-		int[] resourcelist = new int[numresources+1];
+		int[] resourcelist = new int[numresources+1]; //resource list array 
 		
-		ArrayList<Task> tasklist = new ArrayList<Task>();
-		ArrayList<Task> bankerlist = new ArrayList<Task>();
+		ArrayList<Task> tasklist = new ArrayList<Task>(); //list of tasks for optimistic 
+		ArrayList<Task> bankerlist = new ArrayList<Task>(); //list of tasks for banker 
 		
 		for (int i = 0; i < numtasks; i++)
 		{
 			Task t = new Task(i+1, numresources);
 			Task btask = new Task(i+1, numresources);
-			tasklist.add(t);
-			bankerlist.add(btask);
+			tasklist.add(t); //add the task to the optimistic task list 
+			bankerlist.add(btask); //add the task to the banker task list 
 			
 		}
 		
 		resourcelist[0] = 0;
 		for (int i = 1; i < resourcelist.length; i++)
 		{
-			resourcelist[i] = Integer.parseInt(split[i+1]);
+			resourcelist[i] = Integer.parseInt(split[i+1]); //fill the resource list with units per resource 
 			
 		}
 		
@@ -38,7 +38,7 @@ public class Main {
 		{
 			ArrayList<Action> instructionlist = new ArrayList<Action>();
 			String act = scan.next(); //activity 
-			int a = Integer.parseInt(scan.next()); //tasknumber
+			int a = Integer.parseInt(scan.next()); //task number
 			int b = Integer.parseInt(scan.next()); 
 			int c = Integer.parseInt(scan.next());
 			Action action = new Action(act, a, b, c); 
@@ -55,16 +55,16 @@ public class Main {
 		int[] bankerresourcelist = new int[numresources+1];
 		for (int i = 1; i < numresources+1; i++)
 		{
-			bankerresourcelist[i] = resourcelist[i];
+			bankerresourcelist[i] = resourcelist[i]; //create a separate resource list for the banker
+			//ensures that the same list does not accidentally get modified 
 		}
 		
 		//----------------------------------------------------------------
 		//RUN OPTIMISTIC
-		
-		
+
 		//create an instance of the optimistic resource manager 
 		Optimistic o = new Optimistic(numtasks, numresources, resourcelist);
-		o.run(tasklist); //run the manager 
+		o.run(tasklist); //run the optimistic manager 
 		
 		//Print the output
 		System.out.println("\tFIFO");
@@ -100,8 +100,9 @@ public class Main {
 		//--------------------------------------------------------------------------
 		//RUN BANKER 
 		
+		//create an instance of the Banker resource manager 
 		BankerNew b = new BankerNew(numtasks, numresources, bankerresourcelist);
-		b.run(bankerlist); //run the manager 
+		b.run(bankerlist); //run the banker manager 
 		
 		//Print the output
 		System.out.println("\tBanker");

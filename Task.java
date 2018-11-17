@@ -1,24 +1,31 @@
 import java.util.*;
+
+/*
+ * This creates an instance of a particular task.
+ */
 public class Task 
 {
-	int id;
-	boolean aborted;
-	ArrayList<Action> instructions; 
-	int total; 
-	int compute;
-	int currentindex;
+	int id; //id number
+	boolean aborted; //if the task is aborted or not
+	ArrayList<Action> instructions; //list of actions relevant to task
+	int total; //total time from initiate to finish
+	int compute; //time for computing
+	int currentindex; //th index in the list of instructions
 	
-	int[] maxclaim; 
-	int[] resourcesOwn;
-	int[] resourcesNeed;
-	boolean terminated;
-	boolean canFinish; 
+	int[] maxclaim; //array of the maximum claims of the task
+	int[] resourcesOwn; //array of the resources this task owns
+	int[] resourcesNeed; //array of the resources this task needs
+	boolean terminated; //if the task is done or not
+	boolean canFinish; //whether this task can complete or not 
 	
-	int finish; 
-	int waiting;
+	int finish; //to set the finish time 
+	int waiting; //counts the time spent blocked/waiting
 	
-	String[] results = new String[3];
+	String[] results = new String[3]; //array that contains the three results we will print 
 	
+	/*
+	 * creates an instance of Task
+	 */
 	public Task (int id, int numResources)
 	{
 		this.id = id;
@@ -31,6 +38,10 @@ public class Task
 		this.waiting = 0;
 		canFinish = false; 
 	}
+	
+	/*
+	 * creates an instance of Task
+	 */
 	public Task(int id, ArrayList<Action> instructions, int numResources)
 	{
 		this.id = id;
@@ -44,69 +55,86 @@ public class Task
 		canFinish = false;
 	}
 	
-	public void receive(int resource, int amt)
+	/*
+	 * task receives units and updates the resourcesOwn and resourcesNeed array accordingly
+	 */
+	public void getUnits(int resource, int amt)
 	{
 		resourcesOwn[resource] += amt;
 		resourcesNeed[resource] -= amt;
 	}
 	
-	public void release(int resource, int amt)
+	/*
+	 * task releases units and updates the resourcesOwn and resourcesNeed array accordingly
+	 */
+	public void releaseUnits(int resource, int amt)
 	{
 		resourcesOwn[resource] -= amt;
 		resourcesNeed[resource] += amt;
 	}
 	
+	/*
+	 * abort this task by setting the finish to the current cycle and changing aborted to true
+	 */
 	public void abort(int currentcycle)
 	{
 		this.aborted = true;
 		this.finish = currentcycle;
 	}
 	
+	/*
+	 * terminate this task by setting terminated to true and setting the finish to the current cycle
+	 */
 	public void terminate(int currentcycle)
 	{
 		this.terminated = true;
 		this.finish = currentcycle; 
 	}
 	
+	/*
+	 * returns this task's ID
+	 */
 	public int getID()
 	{
 		return this.id;
 	}
 	
+	/*
+	 * returns this task's list
+	 */
 	public ArrayList<Action> getList()
 	{
 		return this.instructions;
 	}
 	
-	public void incIndex()
-	{
-		this.currentindex = this.currentindex + 1;
-	}
 	
+	/*
+	 * returns the current index of the list.
+	 */
 	public int getIndex()
 	{
 		return this.currentindex;
 	}
 	
-	public boolean isDone()
-	{
-		if (instructions.get(currentindex).getActivity().equals("terminate"))
-		{
-			return true;
-		}
-		else return false;
-	}
-	
+	/*
+	 * returns the compute time 
+	 */
 	public int getComputeTime()
 	{
 		return this.compute;
 	}
 	
+	/*
+	 * sets the compute time to parameter c
+	 */
 	public void setComputeTime(int c)
 	{
 		this.compute = c;
 	}
 	
+	/*
+	 * prints out the whole list of activities
+	 */
 	public void printList()
 	{
 		for (Action a : this.getList())
@@ -115,6 +143,10 @@ public class Task
 		}
 	}
 	
+	/*
+	 * prints the three results for this task
+	 * total time, wait time, and percentage of time spent waiting
+	 */
 	public void printResults()
 	{
 		for (int i = 0; i < results.length; i++)

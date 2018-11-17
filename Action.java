@@ -25,21 +25,35 @@ public class Action
 		return this.activity;
 	}
 	
+	
+	/*
+	 * returns the first value in the string 
+	 * represents the resource number
+	 */
 	public int getA()
 	{
 		return this.a;
 	}
 	
+	/*
+	 * returns the second value in the string
+	 */
 	public int getB()
 	{
 		return this.b;
 	}
 	
+	/*
+	 * returns the third value in the string
+	 */
 	public int getC()
 	{
 		return this.c;
 	}
 	
+	/*
+	 * returns the original instruction
+	 */
 	public String toString()
 	{
 		String str = activity + " " + a + " " + b + " " + c;
