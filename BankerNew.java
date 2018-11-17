@@ -82,7 +82,7 @@ public class BankerNew
 						//set the tasks's result array with the finish time, waiting time and percent spent waiting
 						current.results[0] = currentcycle + "";
 						current.results[1] = current.waiting + "";
-						current.results[2] = (int) (((double) current.waiting / (double) (currentcycle) ) * 100) + "%";
+						current.results[2] = (int) Math.round((((double) current.waiting / (double) (currentcycle) ) * 100)) + "%";
 					} 
 					else if ( act.getActivity().equals("compute"))
 					{

@@ -63,7 +63,7 @@ public class Main {
 		
 		
 		//create an instance of the optimistic resource manager 
-		OptimisticTest o = new OptimisticTest(numtasks, numresources, resourcelist);
+		Optimistic o = new Optimistic(numtasks, numresources, resourcelist);
 		o.run(tasklist); //run the manager 
 		
 		//Print the output
@@ -86,8 +86,13 @@ public class Main {
 			}
 		}
 		//System.out.println("total= " + total);
-		String percent = (int) (((double) wait / (double) total ) * 100) + "%";
-		System.out.print("Total       " + total + "   " + wait + "   " + percent);
+		//String percent = Math.round((((double) wait / (double) total ) * 100)) + "%";
+		int percent = (int) Math.round((double) wait/total * 100);
+		//System.out.print("percent is " + percent);
+		String p2 = percent + "%";
+		System.out.print("Total       " + total + "   " + wait + "   " + p2);
+		//System.out.printf("Total       " + total+"  "+wait+"   %.0f",((double)wait/ (double)total) * 100) ;
+		//System.out.print("%");
 		
 		System.out.println();
 		System.out.println();
@@ -118,8 +123,11 @@ public class Main {
 			}
 		}
 		//System.out.println("total= " + total);
-		String bankerpercent = (int) (((double) bankerwait / (double) bankertotal ) * 100) + "%";
-		System.out.print("Total       " + bankertotal + "   " + bankerwait + "   " + bankerpercent);
-		
+		int bankerpercent = (int) Math.round((double) bankerwait/bankertotal * 100);
+		String bp = bankerpercent + "%";
+		//String bankerpercent = Math.round((((double) bankerwait / (double) bankertotal ) * 100)) + "%";
+		System.out.print("Total       " + bankertotal + "   " + bankerwait + "   " + bp);
+		//System.out.printf("Total       " + bankertotal+"  "+bankerwait+"   %.0f",((double)bankerwait/ (double)bankertotal) * 100) ;
+		//System.out.print("%");
 	}
 }

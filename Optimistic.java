@@ -74,7 +74,7 @@ public class Optimistic
 						//add the total and waiting times for this task to its result array
 						current.results[0] = (currentcycle) + "";
 						current.results[1] = current.waiting + "";
-						current.results[2] = (int) (((double) current.waiting / (double) (currentcycle) ) * 100) + "%";
+						current.results[2] = (int) Math.round((((double) current.waiting / (double) (currentcycle) ) * 100)) + "%";
 					} 
 					else if ( act.getActivity().equals("compute"))
 					{	
@@ -136,13 +136,15 @@ public class Optimistic
 	 */
 	public void deadlockmethod(int currentcycle) 
 	{
-		int aborted = blocked.size() -1;
-		int lowest = 500;
+		int hold = blocked.size() -1;
+		int abortions = 0;
+		//int lowest = 100000;
 		int abort_index = 0; 
 		
 		//loop through potential tasks
-		for (int i = 0; i < aborted; i++)
+		while (abortions != hold)
 		{
+			int lowest = 100000;
 			//loop through the blocked tasks and find the one with the lowest index 
 			for (int j = 0; j < blocked.size(); j++)
 			{
@@ -150,18 +152,25 @@ public class Optimistic
 				if (b.getID() < lowest)
 				{
 					lowest = b.getID();
+					//System.out.println("lowest id " + lowest);
 					abort_index = j;
+					//System.out.println("aborting task cycle " + currentcycle + " " + blocked.get(abort_index).getID());
 				}
 			}
 			
 			Task toabort = blocked.get(abort_index);
+			blocked.remove(toabort);
+			//System.out.println(toabort.getID());
+			//blocked.remove(toabort);
 			toabort.abort(currentcycle);
 			for (int k = 1; k < numresources+1; k++)
 			{
 				justReleased[k] += toabort.resourcesOwn[k];
+				toabort.resourcesOwn[k] = 0; 
 			}
 			
-			blocked.remove(toabort);
+			
+			abortions++;
 			
 		}
 	}
