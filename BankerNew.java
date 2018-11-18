@@ -21,7 +21,6 @@ public class BankerNew
 		blocked = new ArrayList<Task>();
 		ok = new ArrayList<Task>();
 		justReleased = new int[numresources+1];
-		
 	}
 	
 	public void run(ArrayList<Task> tasklist)
@@ -68,7 +67,6 @@ public class BankerNew
 					}
 					else if ( act.getActivity().equals("request"))
 					{
-						//System.out.println("request task " + current.getID());
 						request(current, act, currentcycle); //call the banker request method
 					}
 					else if ( act.getActivity().equals("release"))
@@ -136,14 +134,7 @@ public class BankerNew
 		int amtrequested = act.getC(); //amount of resource requested
 		int available = resourcelist[resource]; //units of resource available 
 		
-		//if the task is computing then decrement the compute time
-		if (current.getComputeTime() > 0)
 		{
-			current.compute-=1;
-			ok.add(current);
-			//current.setComputeTime(current.getComputeTime()-1);
-		}
-		else {
 			//if the amount requested is greater than the claim then we abort the task 
 			if (amtrequested > current.resourcesNeed[resource])
 			{   
@@ -203,14 +194,8 @@ public class BankerNew
 		int resource = act.getB(); //get resource
 		int amtreleased = act.getC(); //get the number of units releasing
 		int currentown = current.resourcesOwn[resource]; //get the number of resources that the resource owns
-		
-		if(current.getComputeTime() > 0)
+	
 		{
-			current.compute-=1;
-			//current.setComputeTime(current.getComputeTime()-1);
-			ok.add(current);
-		}
-		else {
 			//if the task owns more or the same number of units that it is trying to release
 			if (currentown >= amtreleased)
 			{  

@@ -1,16 +1,21 @@
 import java.util.*;
 
+/*
+ * This creates an instance of the optimistic resource manager
+ * System can be deadlocked and deadlock is addressed according to the spec
+ */
 public class Optimistic 
 {
-	int numoftasks;
-	int numresources;
-	int[] resourcelist;
+	int numoftasks; //number of tasks
+	int numresources; //number of resources
+	int[] resourcelist; //array with resources and units per resource. 
+	//NOTE: 0th slot is empty because resource numbering starts at 1
 	
-	ArrayList<Task> active;
-	ArrayList<Task> blocked; 
-	ArrayList<Task> ok; 
+	ArrayList<Task> running; //tasks that are neither terminated nor aborted 
+	ArrayList<Task> blocked; //tasks that are currently blocked and waiting 
+	ArrayList<Task> ok; //non-blocked tasks
 	
-	int[] justReleased;
+	int[] justReleased; //units that have been released this cycle and will be added to resourcelist at end of cycle
 	
 	/*
 	 * instantiates an instance of the optimistic resource manager 
@@ -20,7 +25,7 @@ public class Optimistic
 		this.numoftasks = numoftasks;
 		this.numresources = numresources;
 		this.resourcelist = resourcelist;
-		active = new ArrayList<Task>();
+		running = new ArrayList<Task>();
 		blocked = new ArrayList<Task>();
 		ok = new ArrayList<Task>();
 		justReleased = new int[numresources+1];
@@ -32,21 +37,21 @@ public class Optimistic
 	public void run(ArrayList<Task> tasklist)
 	{
 		
-		int currentcycle = 0;
+		int currentcycle = 0; //initiate the current cycle
 		
-		//we add all the lists to a list representing active tasks
+		//we add all the lists to the list of tasks that are neither terminated nor aborted 
 		for (Task t : tasklist)
 		{
-			active.add(t);
+			running.add(t);
 		}
 		
-		
-		while (active.size() > 0)
+		//as long as there are still tasks that we can run, we keep looping 
+		while (running.size() > 0)
 		{
-			//loop through all the elements in the active task list 
-			for (int i = 0; i < active.size(); i++)
+			//loop through all the elements in the running task list 
+			for (int i = 0; i < running.size(); i++)
 			{
-				Task current = active.get(i);
+				Task current = running.get(i);
 				int index = current.getIndex(); //get the index we are currently at in the list of activities for the task 
 				
 				Action act = current.getList().get(index); //get the current activity
@@ -109,7 +114,7 @@ public class Optimistic
 			//if there are no ok tasks and there is at least one task in the blocked list then we have deadlock 
 			if (blocked.size() > 0 && ok.size() == 0)
 			{
-				deadlockmethod(currentcycle);
+				deadlockmethod(currentcycle); //resolve deadlock by aborting task with lowest ID 
 			}
 			
 			//add the resources released in this cycle to the array of available resources
@@ -120,9 +125,9 @@ public class Optimistic
 				
 			}
 			
-			active.clear();
-			active.addAll(blocked);
-			active.addAll(ok);
+			running.clear();
+			running.addAll(blocked);
+			running.addAll(ok);
 			blocked.clear();
 			ok.clear();
 			
@@ -136,95 +141,85 @@ public class Optimistic
 	 */
 	public void deadlockmethod(int currentcycle) 
 	{
-		int hold = blocked.size() -1;
-		int abortions = 0;
-		//int lowest = 100000;
+		int end = blocked.size() - 1;
+		int num_abortions = 0;
+		
 		int abort_index = 0; 
 		
 		//loop through potential tasks
-		while (abortions != hold)
+		while (num_abortions != end)
 		{
-			int lowest = 100000;
+			int minID = 100000;
 			//loop through the blocked tasks and find the one with the lowest index 
 			for (int j = 0; j < blocked.size(); j++)
 			{
 				Task b = blocked.get(j);
-				if (b.getID() < lowest)
+				if (b.getID() < minID)
 				{
-					lowest = b.getID();
+					minID = b.getID(); //this is the new lowest ID 
 					//System.out.println("lowest id " + lowest);
-					abort_index = j;
+					abort_index = j; //the index of the lowest ID
 					//System.out.println("aborting task cycle " + currentcycle + " " + blocked.get(abort_index).getID());
 				}
 			}
 			
-			Task toabort = blocked.get(abort_index);
-			blocked.remove(toabort);
-			//System.out.println(toabort.getID());
-			//blocked.remove(toabort);
-			toabort.abort(currentcycle);
+			Task toabort = blocked.get(abort_index); //task that we will abort momentarily 
+			blocked.remove(toabort); //remove the aborted task from the blocked list 
+			toabort.abort(currentcycle); //abort the task 
+			//release the resources of the task and set the resources that the aborted task owns to be 0 
 			for (int k = 1; k < numresources+1; k++)
 			{
 				justReleased[k] += toabort.resourcesOwn[k];
 				toabort.resourcesOwn[k] = 0; 
 			}
-			
-			
-			abortions++;
+			num_abortions++;
 			
 		}
 	}
 
+	/*
+	 * this method will request resources for a particular task 
+	 */
 	public void request(Task current, Action act) 
 	{
-		int resource = act.getB();
+		int resource = act.getB(); //get the resource 
+		int amtrequested = act.getC(); //get the units of the resource
+		int available = resourcelist[resource]; //get the amt of units available for this resource 
 		
-		int amtrequested = act.getC();
-		
-		int available = resourcelist[resource];
-		
-		
-		if (current.getComputeTime() > 0)
 		{
-			current.compute-=1;
-			ok.add(current);
-			
-		}
-		else {
+			//if there are more units available than were requested, we can grant the request
 			if (available >= amtrequested)
 			{
-				resourcelist[resource] -= amtrequested;
-				current.receive(resource, amtrequested);
-				current.currentindex += 1;
-				ok.add(current);
+				resourcelist[resource] -= amtrequested; //update the resource list 
+				current.getUnits(resource, amtrequested); //update the task's resource list 
+				current.currentindex += 1; //move on to the next activity 
+				ok.add(current); //add the task to the nonblocked task list 
 			}
 			else {
-				current.waiting++;
+				current.waiting++; //cannot grant request, so block the task and increment waiting time 
 				blocked.add(current);
 				
 			}
 		}
 	}
 	
+	/*
+	 * This method tries to release units of a resource for a particular task
+	 */
 	public void release(Task current, Action act)
 	{
-		int resource = act.getB();
-		int amtreleased = act.getC();
-		int currentown = current.resourcesOwn[resource];
-		
-		if(current.getComputeTime() > 0)
+		int resource = act.getB(); //get resource number
+		int amtreleased = act.getC(); //get number of units for release
+		int currentown = current.resourcesOwn[resource]; //get the amount of units this resource owns 
+		 
 		{
-			current.compute-=1;
-			//current.setComputeTime(current.getComputeTime()-1);
-			ok.add(current);
-		}
-		else {
+			//if the task owns more than it is trying to release, release is okay
 			if (currentown >= amtreleased)
 			{
-				justReleased[resource] += amtreleased;
-				current.release(resource, amtreleased);
-				current.currentindex += 1;
-				ok.add(current);
+				justReleased[resource] += amtreleased; //update the just released array
+				current.releaseUnits(resource, amtreleased); //update the task's resource arrays
+				current.currentindex += 1; //move on to the next activity
+				ok.add(current); //add the task to the nonblocked task list 
 				
 			}
 		}
