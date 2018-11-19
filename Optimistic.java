@@ -114,6 +114,8 @@ public class Optimistic
 			//if there are no ok tasks and there is at least one task in the blocked list then we have deadlock 
 			if (blocked.size() > 0 && ok.size() == 0)
 			{
+				System.out.println("Deadlock detected in cycle " +  currentcycle);
+				//System.out.println();
 				deadlockmethod(currentcycle); //resolve deadlock by aborting task with lowest ID 
 			}
 			
@@ -166,6 +168,7 @@ public class Optimistic
 			Task toabort = blocked.get(abort_index); //task that we will abort momentarily 
 			blocked.remove(toabort); //remove the aborted task from the blocked list 
 			toabort.abort(currentcycle); //abort the task 
+			System.out.println("Deadlock: task " + toabort.getID() + " aborted in cycle " + currentcycle);
 			//release the resources of the task and set the resources that the aborted task owns to be 0 
 			for (int k = 1; k < numresources+1; k++)
 			{

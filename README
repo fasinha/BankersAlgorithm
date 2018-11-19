@@ -1,0 +1,11 @@
+
+Lab 3 - Banker's Algorithm
+Flavia Sinha
+Fall 2018 - Professor Shvartznaider
+
+This program runs two resource manager simulations, one optimistic where deadlock can occur and one 
+implementing the Banker's Algorithm. There is a Task class representing each task, and each task has 
+a list of Actions containing the instructions for each cycle. 
+
+To compile: javac Main.java
+To run: java Main input-[number]

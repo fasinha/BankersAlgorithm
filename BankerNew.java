@@ -55,6 +55,8 @@ public class BankerNew
 						if(act.getC() > resourcelist[r])
 						{   
 							current.abort(currentcycle);
+							System.out.println("Banker aborts task " + current.getID() + ":");
+							System.out.println("\tClaim for resource " + r + " (" + act.getC() + ") exceeds number of units present (" + resourcelist[r] + ")");
 						}
 						else {
 							//set the max claim and resources need arrays for this task 
@@ -133,7 +135,7 @@ public class BankerNew
 		int resource = act.getB(); //resource requested
 		int amtrequested = act.getC(); //amount of resource requested
 		int available = resourcelist[resource]; //units of resource available 
-		
+		int own = 0;
 		{
 			//if the amount requested is greater than the claim then we abort the task 
 			if (amtrequested > current.resourcesNeed[resource])
@@ -142,10 +144,14 @@ public class BankerNew
 				for (int k = 1; k < numresources+1; k++)
 				{
 					resourcelist[k] += current.resourcesOwn[k];
+					own += current.resourcesOwn[k];
 					current.releaseUnits(k, current.resourcesOwn[k]);
 				}
 				current.abort(currentcycle); //abort the task
-				//System.out.println("aborted");
+				System.out.println("During cycle " + currentcycle + "-" + (currentcycle+1) + " of Banker's algorithm");
+				System.out.print("\tTask " + current.getID() + "'s request exceeds its claim; aborted; ");
+				System.out.println(own + " units available next cycle");
+				System.out.println();
 			}
 			else {
 				int r = act.getB();
@@ -220,34 +226,35 @@ public class BankerNew
 		ArrayList<Task> temptasklist = new ArrayList<Task>(); 
 		for (Task t : running)
 		{
+			t.canFinish = false;
 			temptasklist.add(t); //copy tasks from running into temporary list 
+			
+			
 		}
-		
-		//create an array with boolean values representing whether each task can complete or not 
-		boolean[] finish = new boolean [temptasklist.size()];
 		
 		//create copy of the array of resources 
 		int[] tempresourcelist = new int[numresources+1];
 		
 		for (int i = 0; i < tempresourcelist.length; i++)
 		{
-			//fil the array with the number of units for each resource 
+			//fill the array with the number of units for each resource 
 			tempresourcelist[i] = resourcelist[i];
 		}
 		
-		int count=0;
-		//while we haven't looked through all the elements in temptasklist
-		while (temptasklist.size() > count)
+		int removed = 0;
+		//while there are still elements to look at in the list 
+		while (temptasklist.size() > removed)
 		{
 			boolean potentiallysafe = false; //we do not know if we are in a safe state or not 
 			//loop through the list of tasks 
 			for (int i = 0; i < temptasklist.size(); i++)
 			{   
 				int j = 1;
-				for ( j = 1; j < numresources+1; j++)
+				for (j = 1; j < numresources+1; j++)
 				{ 
 					//check the completable state of the task 
-					if(finish[i] == false) 
+					//check if the task's boolean is still the default
+					if(temptasklist.get(i).canFinish == false) 
 					{
 						//if the number of units of the resource needed are more than the units of the resource left
 						//break out of the loop altogether 
@@ -257,6 +264,7 @@ public class BankerNew
 						}
 					}
 				}
+				//if we have looped through all the resources for the task that means that the task can finish  
 				if(j == numresources + 1 ) 
 				{
 					//simulate the termination of a task by releasing the task's resources 
@@ -264,9 +272,9 @@ public class BankerNew
 					{
 						tempresourcelist[m] += temptasklist.get(i).resourcesOwn[m];
 					}
-					finish[i]=true;
-					potentiallysafe=true; //the state of the system is safe 
-					count++;
+					temptasklist.get(i).canFinish = true; 
+					potentiallysafe=true; //the state currently is safe 
+					removed++;
 				}
 				
 				

@@ -105,7 +105,7 @@ public class Main {
 		b.run(bankerlist); //run the banker manager 
 		
 		//Print the output
-		System.out.println("\tBanker");
+		System.out.println("\tBANKER");
 		int bankertotal = 0;
 		int bankerwait = 0; 
 		for (Task t : bankerlist)
