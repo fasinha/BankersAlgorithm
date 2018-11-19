@@ -2,6 +2,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
+/*
+ * Runs two resource managers and prints outputs for both 
+ * @author Flavia Sinha 
+ * @version 11/18/2018
+ */
 public class Main {
 	
 	public static void main(String[] args) throws FileNotFoundException
@@ -89,8 +94,10 @@ public class Main {
 		//String percent = Math.round((((double) wait / (double) total ) * 100)) + "%";
 		int percent = (int) Math.round((double) wait/total * 100);
 		//System.out.print("percent is " + percent);
+		String t1 = "Total";
 		String p2 = percent + "%";
-		System.out.print("Total       " + total + "   " + wait + "   " + p2);
+		System.out.format("%5s       %2d %2d   %3s", t1, total, wait, p2);
+		//System.out.print("Total       " + total + "   " + wait + "   " + p2);
 		//System.out.printf("Total       " + total+"  "+wait+"   %.0f",((double)wait/ (double)total) * 100) ;
 		//System.out.print("%");
 		
@@ -127,7 +134,10 @@ public class Main {
 		int bankerpercent = (int) Math.round((double) bankerwait/bankertotal * 100);
 		String bp = bankerpercent + "%";
 		//String bankerpercent = Math.round((((double) bankerwait / (double) bankertotal ) * 100)) + "%";
-		System.out.print("Total       " + bankertotal + "   " + bankerwait + "   " + bp);
+		//System.out.print("Total       " + bankertotal + "   " + bankerwait + "   " + bp);
+		String t = "Total";
+		//String str1 = 
+		System.out.format("%5s       %2d %2d   %3s", t, bankertotal, bankerwait, bp);
 		//System.out.printf("Total       " + bankertotal+"  "+bankerwait+"   %.0f",((double)bankerwait/ (double)bankertotal) * 100) ;
 		//System.out.print("%");
 	}

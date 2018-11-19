@@ -1,17 +1,26 @@
 import java.util.*;
 
+/*
+ * This class creates an instance of a resource manager that uses the Banker's algorithm
+ * for resource allocation 
+ * @author Flavia Sinha 
+ * @version 11/18/2018
+ */
 public class BankerNew
 {
 	int numoftasks; //number of tasks
 	int numresources; //number of resources
 	int[] resourcelist; //array of units for each resource 
 	
-	ArrayList<Task> running; //list of runningly working tasks
+	ArrayList<Task> running; //list of running working tasks
 	ArrayList<Task> blocked; //list of blocked tasks
 	ArrayList<Task> ok; //list of nonblocked tasks 
 	
 	int[] justReleased;
 	
+	/*
+	 * instantiates the Banker resource manager
+	 */
 	public BankerNew(int numoftasks, int numresources, int[] resourcelist)
 	{
 		this.numoftasks = numoftasks;
@@ -23,6 +32,9 @@ public class BankerNew
 		justReleased = new int[numresources+1];
 	}
 	
+	/*
+	 * runs the resource manager with a specific array of tasks 
+	 */
 	public void run(ArrayList<Task> tasklist)
 	{
 		int currentcycle = 0;

@@ -2,6 +2,8 @@ import java.util.*;
 
 /*
  * This creates an instance of a particular task.
+ * @author Flavia Sinha
+ * @version 11/18/2018
  */
 public class Task 
 {
@@ -149,10 +151,12 @@ public class Task
 	 */
 	public void printResults()
 	{
+		/*
 		for (int i = 0; i < results.length; i++)
 		{
 			System.out.print(results[i] + "   ");
-		}
+		} */
+		System.out.format("%2s %2s   %3s", results[0], results[1], results[2]);
 	}
 	
 	

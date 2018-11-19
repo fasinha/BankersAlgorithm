@@ -1,6 +1,8 @@
 
 /*
  * Every instance of this class represents an activity for a particular task 
+ * @author Flavia Sinha 
+ * @version 11/18/2018
  */
 public class Action 
 {
