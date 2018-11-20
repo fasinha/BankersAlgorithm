@@ -2,7 +2,9 @@ import java.util.*;
 
 /*
  * This creates an instance of the optimistic resource manager
- * System can be deadlocked and deadlock is addressed according to the spec
+ * System can be deadlocked and deadlock is addressed according to the project specs
+ * @author Flavia Sinha 
+ * @version 11/18/2018
  */
 public class Optimistic 
 {

@@ -80,7 +80,7 @@ public class Main {
 			System.out.print("Task " + t.getID() + "      ");
 			if (t.aborted == true)
 			{
-				System.out.print("aborted");
+				System.out.print(" aborted");
 				System.out.println();
 			}
 			else {
@@ -96,7 +96,7 @@ public class Main {
 		//System.out.print("percent is " + percent);
 		String t1 = "Total";
 		String p2 = percent + "%";
-		System.out.format("%5s       %2d %2d   %3s", t1, total, wait, p2);
+		System.out.format("%5s       %2d %3d   %3s", t1, total, wait, p2);
 		//System.out.print("Total       " + total + "   " + wait + "   " + p2);
 		//System.out.printf("Total       " + total+"  "+wait+"   %.0f",((double)wait/ (double)total) * 100) ;
 		//System.out.print("%");
@@ -120,7 +120,7 @@ public class Main {
 			System.out.print("Task " + t.getID() + "      ");
 			if (t.aborted == true)
 			{
-				System.out.print("aborted");
+				System.out.print(" aborted");
 				System.out.println();
 			}
 			else {
@@ -137,7 +137,7 @@ public class Main {
 		//System.out.print("Total       " + bankertotal + "   " + bankerwait + "   " + bp);
 		String t = "Total";
 		//String str1 = 
-		System.out.format("%5s       %2d %2d   %3s", t, bankertotal, bankerwait, bp);
+		System.out.format("%5s       %2d %3d   %3s", t, bankertotal, bankerwait, bp);
 		//System.out.printf("Total       " + bankertotal+"  "+bankerwait+"   %.0f",((double)bankerwait/ (double)bankertotal) * 100) ;
 		//System.out.print("%");
 	}

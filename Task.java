@@ -156,7 +156,7 @@ public class Task
 		{
 			System.out.print(results[i] + "   ");
 		} */
-		System.out.format("%2s %2s   %3s", results[0], results[1], results[2]);
+		System.out.format("%2s %3s   %3s", results[0], results[1], results[2]);
 	}
 	
 	
