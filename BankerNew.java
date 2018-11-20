@@ -266,7 +266,7 @@ public class BankerNew
 				{ 
 					//check the completable state of the task 
 					//check if the task's boolean is still the default
-					if(temptasklist.get(i).canFinish == false) 
+					if(!temptasklist.get(i).canFinish) 
 					{
 						//if the number of units of the resource needed are more than the units of the resource left
 						//break out of the loop altogether 
@@ -291,7 +291,7 @@ public class BankerNew
 				
 				
 			}
-			if (potentiallysafe == false) return false; //if the system is in an unsafe state, return false 
+			if (!potentiallysafe) return false; //if the system is in an unsafe state, return false 
 		}
 		return true; //if we get here, the state of the system is safe and we can return true; 
 		

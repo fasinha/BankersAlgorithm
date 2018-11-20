@@ -168,8 +168,9 @@ public class Optimistic
 			}
 			
 			Task toabort = blocked.get(abort_index); //task that we will abort momentarily 
+			toabort.abort(currentcycle); //abort the task
 			blocked.remove(toabort); //remove the aborted task from the blocked list 
-			toabort.abort(currentcycle); //abort the task 
+			//toabort.abort(currentcycle); //abort the task 
 			System.out.println("Deadlock: task " + toabort.getID() + " aborted in cycle " + currentcycle);
 			//release the resources of the task and set the resources that the aborted task owns to be 0 
 			for (int k = 1; k < numresources+1; k++)
